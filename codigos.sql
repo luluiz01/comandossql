@@ -1758,3 +1758,53 @@ SELECT ID_CLIENTE, BAIRRO, CIDADE
 FROM ENDERECO;
 
 --CONTINUAR NA AULA 46
+
+
+mysql> SELECT NOME, EMAIL, IDCLIENTE
+    -> FROM CLIENTE;
++--------+---------------+-----------+
+| NOME   | EMAIL         | IDCLIENTE |
++--------+---------------+-----------+
+| JOAO   | JOAO@IG.COM   |         1 |
+| CARLOS | CARLOS@IG.COM |         2 |
+| ANA    | ANA@IG.COM    |         3 |
+| CLARA  | NULL          |         4 |
+| JORGE  | JORGE@IG.COM  |         5 |
+| CELIA  | JCELIA@IG.COM |         6 |
++--------+---------------+-----------+
+6 rows in set (0.00 sec)
+---
+
+mysql> SELECT ID_CLIENTE, BAIRRO, CIDADE
+    -> FROM ENDERECO;
++------------+----------+----------------+
+| ID_CLIENTE | BAIRRO   | CIDADE         |
++------------+----------+----------------+
+|          4 | CENTRO   | B. HORIZONTE   |
+|          1 | CENTRO   | RIO DE JANEIRO |
+|          3 | JARDINS  | SAO PAULO      |
+|          2 | ESTACIO  | RIO DE JANEIRO |
+|          6 | FLAMENGO | RIO DE JANEIRO |
+|          5 | CENTRO   | VITORIA        |
++------------+----------+----------------+
+6 rows in set (0.02 sec)
+
+
+SELECT NOME, SEXO, BAIRRO, CIDADE /*PROJECAO*/
+FROM CLIENTE, ENDERECO /*ORIGEM*/
+WHERE IDCLIENTE = ID_CLIENTE;/*JUNÇÃO*/
+
+mysql> SELECT NOME, SEXO, BAIRRO, CIDADE
+    -> FROM CLIENTE, ENDERECO
+    -> WHERE IDCLIENTE = ID_CLIENTE;
++--------+------+----------+----------------+
+| NOME   | SEXO | BAIRRO   | CIDADE         |
++--------+------+----------+----------------+
+| JOAO   | M    | CENTRO   | RIO DE JANEIRO |
+| CARLOS | M    | ESTACIO  | RIO DE JANEIRO |
+| ANA    | F    | JARDINS  | SAO PAULO      |
+| CLARA  | F    | CENTRO   | B. HORIZONTE   |
+| JORGE  | M    | CENTRO   | VITORIA        |
+| CELIA  | F    | FLAMENGO | RIO DE JANEIRO |
++--------+------+----------+----------------+
+6 rows in set (0.00 sec)
