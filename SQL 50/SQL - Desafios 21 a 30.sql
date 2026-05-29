@@ -1,137 +1,130 @@
-/* 577. Employee Bonus */
-
-SELECT em.name, bo.bonus
-FROM Employee as em
-LEFT JOIN Bonus as bo
-on em.empId = bo.empId  
-WHERE bonus < 1000
-
-SELECT em.name, bo.bonus
-FROM Employee as em
-LEFT JOIN Bonus as bo
-on em.empId = bo.empId  
-WHERE bo.bonus < 1000 or bo.bonus is null
-
-WHERE COALESCE(b.bonus, 0) < 1000
-
-
-/* 1280. Students and Examinations */
-
-
-SELECT s.student_id, s.student_name, sub.subject_name, count(e.subject_name) as attended_exams 
-FROM Students as s
-
-CROSS JOIN Subjects as sub
-LEFT JOIN Examinations as e
-
-ON  e.student_id = s.student_id 
-AND e.subject_name = sub.subject_name 
-
-GROUP BY s.student_id, s.student_name, sub.subject_name
-ORDER BY s.student_id, sub.subject_name
-
-
-/* 570. Managers with at Least 5 Direct Reports */
-
-SELECT name
-FROM Employee
-WHERE id in (
-    SELECT managerId
-    FROM (
-        SELECT managerId, COUNT(managerId) as n_managers
-        FROM Employee e
-        GROUP BY managerId
-    ) t WHERE n_managers >=5
-    )
-
-
-/*  */
-
-
-SELECT s.user_id,
-ROUND (
-    SUM(
-        CASE
-        WHEN UPPER(c.action) = 'CONFIRMED'
-        THEN 1 ELSE 0
-    END) / COUNT(
-        COALESCE(c.action, 0)
-        ), 2) as confirmation_rate
-FROM Signups s
-LEFT JOIN Confirmations c
-ON s.user_id = c.user_id
-GROUP BY s.user_id
-
-/* 620. Not Boring Movies*/
-
-SELECT * 
-FROM Cinema
-WHERE id % 2 != 0 and description != 'boring'
-ORDER BY rating desc
-
-/*  */
-
-SELECT *
-FROM Cinema
-WHERE MOD(ID, 2) != 0 AND LOWER(description) NOT LIKE '%boring%'
-ORDER BY rating DESC
-
-
-/*  */
-
-
-WITH total_vendas as (
-SELECT u.product_id, SUM(u.units) as total_units
-FROM UnitsSold u
-GROUP BY u.product_id
+/* 1174. Immediate Food Delivery II*/
+with FIRST_DATE as (
+    SELECT
+        *,
+        MIN(ORDER_DATE) OVER (PARTITION BY CUSTOMER_ID) as PRIMEIRO_PEDIDO
+    FROM
+        Delivery
 ),
-
-total_produtos as (
-    SELECT p.product_id, SUM(p.price * u.units) as total_vendas
-    FROM Prices p
-    LEFT JOIN UnitsSold u
-        ON p.product_id = u.product_id
-        AND u.purchase_date between p.start_date AND p.end_date
-    GROUP BY p.product_id
-
-),
-
-SELECT tp.product_id, COALESCE(ROUND(tp.total_vendas/tv.total_units, 2), 0) as average_price
-FROM total_produtos tp
-LEFT JOIN total_vendas tv
-ON tp.product_id = tv.product_id
-
-/* 1075. Project Employees I
-*/
-
-SELECT p.project_id, ROUND(AVG(experience_years), 2) as average_years 
-FROM Project as p
-LEFT JOIN Employee as e
-ON p.employee_id = e.employee_id
-GROUP BY project_id 
-
-
-/* 1633. Percentage of Users Attended a Contest */
-SELECT r.contest_id, ROUND(COUNT(r.user_id) * 100.0 / (SELECT COUNT(*) FROM Users), 2) AS porcentagem
-FROM Register r
-GROUP BY r.contest_id
-ORDER BY porcentagem DESC, contest_id ASC
-
-
-
-/* CASE WHEN  */
-/* 1633. Percentage of Users Attended a Contest */
-
-SELECT query_name, 
-    ROUND(SUM(rating/position)/COUNT(query_name), 2) as quality,
-    ROUND ((SUM(CASE
-    WHEN q.rating < 3 THEN 1
-    ELSE 0
-END)/COUNT(query_name)) * 100, 2) as poor_query_percentage
-FROM Queries q
-GROUP BY query_name
+FIRST_DELIVERY_TYPE as (
+    SELECT
+        *,
+        (
+            CASE
+                WHEN primeiro_pedido = order_date
+                and primeiro_pedido = customer_pref_delivery_date THEN 'immediate'
+                WHEN primeiro_pedido = order_date
+                AND primeiro_pedido != customer_pref_delivery_date THEN 'scheduled'
+                ELSE Null
+            END
+        ) as FIRST_DELIVERY_TYPE
+    FROM
+        FIRST_DATE
+)
+SELECT
+    ROUND(
+        SUM(
+            CASE
+                WHEN FIRST_DELIVERY_TYPE = 'immediate' THEN 1
+                ELSE 0
+            END
+        ) / SUM(
+            CASE
+                WHEN FIRST_DELIVERY_TYPE IS NOT NULL THEN 1
+                ELSE 0
+            END
+        ) * 100,
+        2
+    ) as immediate_percentage
+FROM
+    FIRST_DELIVERY_TYPE
 
 
-/* 1193. Monthly Transactions I
-Medium */
+
+/*550. Game Play Analysis IV
+Mediu*/
+
+SELECT ROUND(COUNT(a2.player_id) / (SELECT COUNT(Distinct player_id) FROM Activity), 2)
+
+FROM Activity a2
+JOIN (
+    SELECT player_id, MIN(EVENT_DATE) as primeiro_login
+    FROM Activity
+    GROUP BY player_id
+    ) al
+ON a2.event_date = DATE_ADD(al.primeiro_login, INTERVAL 1 DAY)
+AND a2.player_id = al.player_id
+
+
+
+/* 2356. Number of Unique Subjects Taught by Each Teacher
+Easy */
+
+SELECT teacher_id , count(distinct subject_id) as cnt 
+FROM Teacher
+GROUP BY 1
+
+
+/* 1141. User Activity for the Past 30 Days I
+Easy */
+
+SELECT activity_date as day, COUNT(DISTINCT user_id) as active_users
+FROM Activity
+Where activity_date between DATE_ADD('2019-07-27', INTERVAL -29 day) and '2019-07-27'
+GROUP BY activity_date
+
+
+/* 1070. Product Sales Analysis III */
+
+SELECT product_id,
+       first_year,
+       quantity,
+       price
+FROM (
+    SELECT product_id,
+           s.year AS ano,
+           MIN(s.year) OVER (PARTITION BY product_id) AS first_year,
+           quantity,
+           price
+    FROM Sales s
+) t
+WHERE ano = first_year
+
+
+/* 596. Classes With at Least 5 Students */
+ 
+SELECT class
+FROM Courses
+GROUP BY class 
+HAVING count(class) > 5
+
+/* 1729. Find Followers Count */
+
+SELECT user_id, count(distinct follower_id) as followers_count
+FROM Followers
+GROUP BY user_id
+ORDER BY user_id asc
+
+
+/* 619. Biggest Single Number */
+SELECT MAX(num) as num
+FROM MyNumbers
+WHERE
+    num in (SELECT num
+            FROM MyNumbers
+            GROUP BY num
+            HAVING count(num) < 2
+             )
+
+
+/* 1045. Customers Who Bought All Products */
+
+
+    SELECT c.customer_id
+    FROM Customer as c
+    GROUP BY c.customer_id
+    HAVING COUNT( distinct c.product_key) = (
+        SELECT COUNT(*)
+        FROM Product
+)
 

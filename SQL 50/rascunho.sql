@@ -1,0 +1,11 @@
+DELETE FROM
+    PERSON
+WHERE ID IN (
+    SELECT ID
+    FROM (
+        SELECT ID,
+            ROW_NUMBER() OVER ( PARTITION BY EMAIL ORDER BY ID ASC ) AS MENOR_ID
+        FROM Person
+    ) T
+     WHERE MENOR ID != 1
+)

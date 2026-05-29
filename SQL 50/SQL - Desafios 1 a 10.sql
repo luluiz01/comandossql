@@ -60,8 +60,8 @@ ON Sales.product_id  = Product.product_id
 
 
 /* EStudar CASE WHEN e CTE e Função agregação */
-/* 1581. Customer Who Visited but Did Not Make Any Transactions*/ - MUITO DIFÌCIL
 
+/* 1581. Customer Who Visited but Did Not Make Any Transactions*/ - MUITO DIFÌCIL
 
 -- Write your MySQL query statement below
 

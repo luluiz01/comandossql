@@ -45,7 +45,7 @@ WHERE id in (
     )
 
 
-/*  */
+/* 1934. Confirmation Rate */
 
 
 SELECT s.user_id,
@@ -77,7 +77,7 @@ WHERE MOD(ID, 2) != 0 AND LOWER(description) NOT LIKE '%boring%'
 ORDER BY rating DESC
 
 
-/*  */
+/* 1251. Average Selling Price */
 
 
 WITH total_vendas as (
@@ -135,3 +135,34 @@ GROUP BY query_name
 /* 1193. Monthly Transactions I
 Medium */
 
+SELECT DATE_FORMAT(trans_date, "%Y-%m") as month,
+country,
+COUNT(amount) as trans_count,
+ SUM(
+    CASE 
+        WHEN state = 'approved' THEN 1
+        ELSE 0
+    END
+) as approved_count, SUM(amount) as trans_total_amount,
+SUM(
+    CASE 
+        WHEN state = 'approved' THEN amount
+        ELSE 0
+    END
+) as approved_total_amount
+
+
+FROM Transactions
+GROUP BY month, country 
+
+
+/* 1211. Queries Quality and Percentage */
+
+SELECT query_name, 
+    ROUND(SUM(rating/position)/COUNT(query_name), 2) as quality,
+    ROUND ((SUM(CASE
+    WHEN q.rating < 3 THEN 1
+    ELSE 0
+END)/COUNT(query_name)) * 100, 2) as poor_query_percentage
+FROM Queries q
+GROUP BY query_name
